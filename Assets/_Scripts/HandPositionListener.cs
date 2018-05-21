@@ -17,6 +17,9 @@ public class HandPositionListener : MonoBehaviour {
     private Vector3[] leftHandBounds = new Vector3[5];
     private Vector3[] rightHandBounds = new Vector3[5];
 
+    private const string LARM = "LArm";
+    private const string RARM = "RArm";
+
     // Use this for initialization
     void Start () {
         // Start server connection
@@ -43,8 +46,8 @@ public class HandPositionListener : MonoBehaviour {
 
                 // Send arm positions to server
                 if (serverConnection.isConnected) {
-                    serverConnection.fnPacketTest("MOVE|LARM|" + leftHand.transform.position); 
-                    serverConnection.fnPacketTest("MOVE|RARM|" + rightHand.transform.position); 
+                    serverConnection.fnPacketTest("MOVE|" + LARM + "|" + leftHand.transform.position); 
+                    serverConnection.fnPacketTest("MOVE|" + RARM + "|" + rightHand.transform.position); 
                 }
 
                 // Reset timer
