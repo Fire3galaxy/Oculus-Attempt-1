@@ -34,6 +34,10 @@ public class HandPositionListener : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (Input.GetKeyDown("space")) {
+            Debug.Log("In update");
+        }
+
         // Report hand positions to Python script once per second
         if (currState == States.Playtime)
         {
@@ -57,19 +61,21 @@ public class HandPositionListener : MonoBehaviour {
         // Record limits of hands to scale to NAO hands
         else
         {
-            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch) || Input.GetKeyDown("r"))
             {
                 if (rightHand != null)
                 {
-                    Debug.Log("Right hand: " + rightHand.transform.position);
+                    serverConnection.fnPacketTest("MOVE|" + RARM + "|" + rightHand.transform.position);
+                    Debug.Log("MOVE|" + RARM + "|" + rightHand.transform.position);
                 }
             }
 
-            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.LTouch))
+            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.LTouch) || Input.GetKeyDown("l"))
             {
                 if (leftHand != null)
                 {
-                    Debug.Log("Left hand: " + leftHand.transform.position);
+                    serverConnection.fnPacketTest("MOVE|" + LARM + "|" + leftHand.transform.position); 
+                    Debug.Log("MOVE|" + LARM + "|" + leftHand.transform.position);
                 }
             }
         }
