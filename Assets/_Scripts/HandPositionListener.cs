@@ -55,6 +55,7 @@ public class HandPositionListener : MonoBehaviour {
             }
         }
         // Record limits of hands to scale to NAO hands
+        // FIXME: Add setup calibration of limits code
         else
         {
             if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
@@ -70,6 +71,9 @@ public class HandPositionListener : MonoBehaviour {
                 if (leftHand != null)
                 {
                     Debug.Log("Left hand: " + leftHand.transform.position);
+                    Debug.Log("Str message: " + serverConnection.strMessage);
+                    Debug.Log("Res message: " + serverConnection.res);
+                    serverConnection.fnPacketTest("MOVE|" + RARM + "|" + rightHand.transform.position); 
                 }
             }
         }
