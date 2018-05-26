@@ -21,6 +21,7 @@ public class HandPositionListener : MonoBehaviour {
     // Shoulder pos, Arm length (Arm length should be the same for both, but will be recorded)
     private Vector3[] leftHandDimens = new Vector3[2];
     private Vector3[] rightHandDimens = new Vector3[2];
+    public float NaoArmLength = .21f;
 
     private const string LARM = "LArm";
     private const string RARM = "RArm";
@@ -36,6 +37,10 @@ public class HandPositionListener : MonoBehaviour {
         if (leftHand == null)
             leftHand = GameObject.Find("LocalAvatar/hand_left");
     }
+
+    Vector3 scaleToNao(Vector3 armPosition, Vector3 shoulderPosition) {
+        return Vector3.Normalize(armPosition - shoulderPosition) * NaoArmLength;
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -46,14 +51,14 @@ public class HandPositionListener : MonoBehaviour {
             elapsedTime += Time.deltaTime;
             if (elapsedTime >= SendFrequency)
             {
-                // Log hand positions
-                Debug.Log("Right hand: " + rightHand.transform.position);
-                Debug.Log("Left hand: " + leftHand.transform.position);
-
                 // Send arm positions to server
                 if (serverConnection.isConnected) {
-                    serverConnection.fnPacketTest("MOVE|" + LARM + "|" + leftHand.transform.position); 
-                    serverConnection.fnPacketTest("MOVE|" + RARM + "|" + rightHand.transform.position); 
+                    // Log hand positions
+                    Debug.Log("Right hand: " + rightHand.transform.position);
+                    Debug.Log("Left hand: " + leftHand.transform.position);
+
+                    serverConnection.fnPacketTest("MOVE|" + LARM + "|" + scaleToNao(leftHand.transform.position, leftHandDimens[0])); 
+                    serverConnection.fnPacketTest("MOVE|" + RARM + "|" + scaleToNao(rightHand.transform.position, rightHandDimens[0])); 
                 }
 
                 // Reset timer
