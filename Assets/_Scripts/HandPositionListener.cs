@@ -9,7 +9,7 @@ public class HandPositionListener : MonoBehaviour {
     public Connector serverConnection = new Connector();
     public GameObject rightHand;
     public GameObject leftHand;
-    public Text textUI, textStats;
+    public Text textTitle, textUI, textStats;
 
     private enum States { Setup, Playtime };
     private enum SetupStates { AskForArmsDown, AskForArmsUp, Done };
@@ -42,6 +42,7 @@ public class HandPositionListener : MonoBehaviour {
         // Report hand positions to Python script once per second
         if (currState == States.Playtime)
         {
+            textTitle.text = "Robot Control Phase";
             elapsedTime += Time.deltaTime;
             if (elapsedTime >= SendFrequency)
             {
@@ -94,12 +95,13 @@ public class HandPositionListener : MonoBehaviour {
 
                         textStats.text = "Recorded Arm Lengths: " + leftHandDimens[1].y + " (L), " + rightHandDimens[1].y + " (R)\n"
                             + "Shoulders: " + leftHandDimens[0] + " (L), " + rightHandDimens[0] + " (R)\n";
+                        currSetupState = SetupStates.Done;
                     }
-                    currSetupState = SetupStates.Done;
                     break;
                 default: // Done
                     textUI.text = "Calibrated! While controlling the robot, please keep your torso still. I use your arm length and shoulder position to "
                         + "scale down your movements to the robot's.";
+                    currState = States.Playtime;
                     break;
             }
         }
