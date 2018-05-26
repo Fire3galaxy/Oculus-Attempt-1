@@ -1544,9 +1544,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rightHand: {fileID: 0}
   leftHand: {fileID: 0}
+  textTitle: {fileID: 999143349}
   textUI: {fileID: 1130233358}
   textStats: {fileID: 1109717421}
   SendFrequency: 3
+  NaoArmLength: 0.21
 --- !u!4 &1723117278
 Transform:
   m_ObjectHideFlags: 0
