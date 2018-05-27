@@ -1,4 +1,9 @@
 {
+    "folders": [
+		{
+			"path": "D:\\Python"
+		}
+	],
     "files.exclude":
     {
         "**/.DS_Store":true,

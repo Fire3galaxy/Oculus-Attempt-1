@@ -64,21 +64,18 @@ namespace SharpConnect {
                     res = "Disconnected";
                     return;
                 }
-                // Convert the byte array the message was saved into, minus two for the
-                // Chr(13) and Chr(10)
-                strMessage = Encoding.ASCII.GetString(readBuffer, 0, BytesRead - 2);
+                // Convert the byte array the message was saved into
+                strMessage = Encoding.ASCII.GetString(readBuffer, 0, BytesRead);
                 ProcessCommands(strMessage);
 
                 // Start a new asynchronous read into readBuffer.
                 client.GetStream().BeginRead(readBuffer, 0, READ_BUFFER_SIZE, new AsyncCallback(DoRead), null);
-
             } catch {
                 res = "Disconnected";
             }
         }
         
         private void ProcessCommands(string strMessage) {
-
         }
 
         //// Process the command received from the server, and take appropriate action.
