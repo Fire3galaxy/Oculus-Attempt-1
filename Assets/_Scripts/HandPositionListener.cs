@@ -29,7 +29,7 @@ public class HandPositionListener : MonoBehaviour {
     // Use this for initialization
     void Start () {
         // Start server connection
-        Debug.Log(serverConnection.fnConnectResult("localhost", 10000));
+        Debug.Log(serverConnection.fnConnectResult("localhost", 15000));
 
         // Put OVRCameraRig and LocalAvatar into scene
         if (rightHand == null)
