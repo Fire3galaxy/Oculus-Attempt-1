@@ -6,7 +6,7 @@ using SharpConnect;
 
 // Sends positions of touch controllers to python script
 public class HandPositionListener : MonoBehaviour {
-    public Connector serverConnection = new Connector();
+    private PythonClient clientObject;
     public GameObject rightHand;
     public GameObject leftHand;
     public Text textTitle, textUI, textStats;
@@ -28,8 +28,7 @@ public class HandPositionListener : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        // Start server connection
-        Debug.Log(serverConnection.fnConnectResult("localhost", 15000));
+        clientObject = GameObject.Find("/LogicScripts/PythonClient").GetComponent<PythonClient>();
 
         // Put OVRCameraRig and LocalAvatar into scene
         if (rightHand == null)
@@ -56,13 +55,13 @@ public class HandPositionListener : MonoBehaviour {
             if (elapsedTime >= SendFrequency)
             {
                 // Send arm positions to server
-                if (serverConnection.isConnected) {
+                if (clientObject.serverConnection.isConnected) {
                     // Log hand positions
                     Debug.Log("Right hand: " + rightHand.transform.position);
                     Debug.Log("Left hand: " + leftHand.transform.position);
 
-                    serverConnection.fnPacketTest("MOVE|" + LARM + "|" + scaleToNao(leftHand.transform.position, leftHandDimens[0])); 
-                    serverConnection.fnPacketTest("MOVE|" + RARM + "|" + scaleToNao(rightHand.transform.position, rightHandDimens[0])); 
+                    clientObject.serverConnection.fnPacketTest("MOVE|" + LARM + "|" + scaleToNao(leftHand.transform.position, leftHandDimens[0])); 
+                    clientObject.serverConnection.fnPacketTest("MOVE|" + RARM + "|" + scaleToNao(rightHand.transform.position, rightHandDimens[0])); 
                 }
 
                 // Reset timer
@@ -82,9 +81,6 @@ public class HandPositionListener : MonoBehaviour {
                         rightHandDimens[0] = rightHand.transform.position;
                         textStats.text = "Left hand: " + leftHandDimens[0] + "\nRight Hand: " + rightHandDimens[0];
                         currSetupState = SetupStates.AskForArmsUp;
-                        // FIXME: Do next stage next.
-                        // To do list: another socket for sending and receiving commands?
-                        // Sending raw rgb array to unity (since I can just iterate through a mesh and set its color anyway.)
                     }
                     break;
                 case SetupStates.AskForArmsUp:
@@ -114,9 +110,5 @@ public class HandPositionListener : MonoBehaviour {
                     break;
             }
         }
-    }
-
-    void OnApplicationQuit() {
-        try { serverConnection.fnDisconnect(); } catch { }
     }
 }
