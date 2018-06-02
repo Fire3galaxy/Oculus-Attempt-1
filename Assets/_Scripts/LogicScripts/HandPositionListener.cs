@@ -46,23 +46,18 @@ public class HandPositionListener : MonoBehaviour {
             if (elapsedTime >= SendFrequency)
             {
                 string LArmMessage = ((leftHand.transform.position - leftHandDimens[0]) / leftHandDimens[2].y).ToString("G4");
-                // Debug.Log("Left hand: " + LArmMessage);
+                string RArmMessage = ((rightHand.transform.position - rightHandDimens[0]) / rightHandDimens[2].y).ToString("G4");
 
                 // Send arm positions to server
                 if (clientObject.serverConnection.isConnected) {
-                    // Log hand positions
-                    //Debug.Log("Right hand: " + rightHand.transform.position);
-
                     clientObject.serverConnection.fnPacketTest("MOVE|" + LARM + "|" + LArmMessage); 
-                    // clientObject.serverConnection.fnPacketTest("MOVE|" + RARM + "|" + ((rightHand.transform.position - rightHandDimens[0]) / rightHandDimens[2].y)); 
+                    clientObject.serverConnection.fnPacketTest("MOVE|" + RARM + "|" + RArmMessage); 
                 }
 
                 // Reset timer
                 elapsedTime = 0.0f;
             }
         }
-        // Record limits of hands to scale to NAO hands
-        // FIXME: Add setup calibration of limits code
         else
         {
             switch (currSetupState) {

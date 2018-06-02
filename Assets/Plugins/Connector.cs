@@ -12,7 +12,7 @@ using System.Collections;
 
 namespace SharpConnect {
     public class Connector {
-        const int READ_BUFFER_SIZE = 255;
+        const int READ_BUFFER_SIZE = 921601; // Size of a 640x480 RGB image + 1
         const int PORT_NUM = 10000;
 
         private TcpClient client;
@@ -20,6 +20,7 @@ namespace SharpConnect {
         public string strMessage = string.Empty;
         public string res = String.Empty;
         public bool isConnected = false;
+        public byte[] messageBuffer = new byte[READ_BUFFER_SIZE];
 
         public Connector() { }
 
@@ -64,6 +65,7 @@ namespace SharpConnect {
                     res = "Disconnected";
                     return;
                 }
+                messageBuffer = readBuffer;
                 // Convert the byte array the message was saved into
                 strMessage = Encoding.ASCII.GetString(readBuffer, 0, BytesRead);
                 ProcessCommands(strMessage);

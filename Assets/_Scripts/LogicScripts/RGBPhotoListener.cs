@@ -7,17 +7,16 @@ public class RGBPhotoListener : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        clientObject = GameObject.Find("/LogicScripts/PythonClient").GetComponent<PythonClient>();
-
-		// Texture2D tex = new Texture2D(512, 512, TextureFormat.RGB24, false);
-		// byte[] rawBytes = {}
-		// tex.LoadRawTextureData(rawBytes);
-		// tex.Apply();
-		// GetComponent<Renderer>().material.mainTexture = tex;
+        clientObject = GameObject.Find("/LogicScripts").GetComponent<PythonClient>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		string imageContents = clientObject.serverConnection.strMessage;
+		Texture2D tex = new Texture2D(640, 480, TextureFormat.RGB24, false);
+		// byte[] rawBytes = {}
+		tex.LoadRawTextureData(clientObject.serverConnection.messageBuffer);
+		tex.Apply();
+		GetComponent<Renderer>().material.mainTexture = tex;
+		Debug.Log(clientObject.serverConnection.messageBuffer);
 	}
 }
