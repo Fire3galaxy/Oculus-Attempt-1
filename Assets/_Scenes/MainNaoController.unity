@@ -1414,13 +1414,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rightHand: {fileID: 0}
   leftHand: {fileID: 0}
+  state: 0
+  shoulderPos: {x: 0, y: 0, z: 0}
+  currRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &1589830026
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1589830023}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26f59afae5e6def43beae3a240b6a8f0, type: 3}
   m_Name: 
@@ -1430,8 +1433,7 @@ MonoBehaviour:
   textTitle: {fileID: 999143349}
   textUI: {fileID: 1130233358}
   textStats: {fileID: 1109717421}
-  SendFrequency: 2
-  NaoArmLength: 0.21
+  SendFrequency: 5
 --- !u!114 &1589830027
 MonoBehaviour:
   m_ObjectHideFlags: 0

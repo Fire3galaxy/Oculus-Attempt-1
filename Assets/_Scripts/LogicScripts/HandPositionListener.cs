@@ -18,10 +18,9 @@ public class HandPositionListener : MonoBehaviour {
     private float elapsedTime = 0.0f;
     public float SendFrequency = 1.0f;
     
-    // Shoulder pos, Arm length (Arm length should be the same for both, but will be recorded)
-    private Vector3[] leftHandDimens = new Vector3[2];
-    private Vector3[] rightHandDimens = new Vector3[2];
-    public float NaoArmLength = .21f;
+    // Initial hand position, Shoulder pos, Arm length (Arm length should be the same for both, but will be recorded)
+    private Vector3[] leftHandDimens = new Vector3[3];
+    private Vector3[] rightHandDimens = new Vector3[3];
 
     private const string LARM = "LArm";
     private const string RARM = "RArm";
@@ -36,18 +35,9 @@ public class HandPositionListener : MonoBehaviour {
         if (leftHand == null)
             leftHand = GameObject.Find("LocalAvatar/hand_left");
     }
-
-    // Needs to be done here because I don't want to send my arm length to python script
-    Vector3 scaleToNao(Vector3 armPosition, Vector3 shoulderPosition) {
-        return Vector3.Normalize(armPosition - shoulderPosition) * NaoArmLength;
-    }
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown("space")) {
-            Debug.Log("In update");
-        }
-
         // Report hand positions to Python script once per second
         if (currState == States.Playtime)
         {
@@ -55,14 +45,16 @@ public class HandPositionListener : MonoBehaviour {
             elapsedTime += Time.deltaTime;
             if (elapsedTime >= SendFrequency)
             {
+                string LArmMessage = ((leftHand.transform.position - leftHandDimens[0]) / leftHandDimens[2].y).ToString("G4");
+                // Debug.Log("Left hand: " + LArmMessage);
+
                 // Send arm positions to server
                 if (clientObject.serverConnection.isConnected) {
                     // Log hand positions
                     //Debug.Log("Right hand: " + rightHand.transform.position);
-                    Debug.Log("Left hand: " + (leftHand.transform.position - leftHandDimens[0]));
 
-                    clientObject.serverConnection.fnPacketTest("MOVE|" + LARM + "|" + scaleToNao(leftHand.transform.position, leftHandDimens[0])); 
-                    clientObject.serverConnection.fnPacketTest("MOVE|" + RARM + "|" + scaleToNao(rightHand.transform.position, rightHandDimens[0])); 
+                    clientObject.serverConnection.fnPacketTest("MOVE|" + LARM + "|" + LArmMessage); 
+                    // clientObject.serverConnection.fnPacketTest("MOVE|" + RARM + "|" + ((rightHand.transform.position - rightHandDimens[0]) / rightHandDimens[2].y)); 
                 }
 
                 // Reset timer
@@ -89,18 +81,19 @@ public class HandPositionListener : MonoBehaviour {
                     if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger | OVRInput.RawButton.RIndexTrigger, OVRInput.Controller.RTouch | OVRInput.Controller.LTouch)) {
                         Vector3 leftArmLength = (leftHand.transform.position - leftHandDimens[0]) / 2;
                         // Shoulder pos = halfway between lowered hand and raised hand
-                        leftHandDimens[0] = leftHandDimens[0] + leftArmLength;
+                        leftHandDimens[1] = leftHandDimens[0] + leftArmLength;
                         // Arm length - magnitude of vector from lowered hand to shoulder
-                        leftHandDimens[1] = new Vector3(0, Vector3.Magnitude(leftArmLength), 0);
+                        leftHandDimens[2] = new Vector3(0, Vector3.Magnitude(leftArmLength), 0);
                         
                         Vector3 rightArmLength = (rightHand.transform.position - rightHandDimens[0]) / 2;
                         // Shoulder pos = halfway between lowered hand and raised hand
-                        rightHandDimens[0] = rightHandDimens[0] + rightArmLength;
+                        rightHandDimens[1] = rightHandDimens[0] + rightArmLength;
                         // Arm length - magnitude of vector from lowered hand to shoulder
-                        rightHandDimens[1] = new Vector3(0, Vector3.Magnitude(rightArmLength), 0);
+                        rightHandDimens[2] = new Vector3(0, Vector3.Magnitude(rightArmLength), 0);
 
-                        textStats.text = "Recorded Arm Lengths: " + leftHandDimens[1].y + " (L), " + rightHandDimens[1].y + " (R)\n"
-                            + "Shoulders: " + leftHandDimens[0] + " (L), " + rightHandDimens[0] + " (R)\n";
+                        textStats.text = "Recorded Arm Lengths: " + leftHandDimens[2].y + " (L), " + rightHandDimens[2].y + " (R)\n"
+                            + "Initial Hand Positions: " + leftHandDimens[0] + " (L), " + rightHandDimens[0] + " (R)\n"
+                            + "Shoulders: " + leftHandDimens[1] + " (L), " + rightHandDimens[1] + " (R)\n";;
                         currSetupState = SetupStates.Done;
                     }
                     break;

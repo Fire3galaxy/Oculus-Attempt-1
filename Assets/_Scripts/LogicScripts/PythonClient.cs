@@ -12,9 +12,18 @@ public class PythonClient: MonoBehaviour {
     }
     
     void Update() {
+        if (OVRInput.GetDown(OVRInput.RawButton.Y, OVRInput.Controller.LTouch)) {
+            if (serverConnection.isConnected) {
+                try { serverConnection.fnDisconnect(); } catch { }
+            } else {
+                Debug.Log(serverConnection.fnConnectResult("localhost", 10000));
+            }
+        }
     }
 
     void OnApplicationQuit() {
-        try { serverConnection.fnDisconnect(); } catch { }
+        if (serverConnection.isConnected) {
+            try { serverConnection.fnDisconnect(); } catch { }
+        }
     }
 }
