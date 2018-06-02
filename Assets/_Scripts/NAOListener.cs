@@ -12,7 +12,7 @@ public class NAOListener : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		clientObject = GameObject.Find("/LogicScripts/PythonClient").GetComponent<PythonClient>();
+		clientObject = GameObject.Find("/LogicScripts").GetComponent<PythonClient>();
 	}
 	
 	// Update is called once per frame
