@@ -9,6 +9,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Collections;
+using UnityEngine;
 
 namespace SharpConnect {
     public class Connector {
@@ -17,6 +18,8 @@ namespace SharpConnect {
 
         private TcpClient client;
         private byte[] readBuffer = new byte[READ_BUFFER_SIZE];
+        private object thisLock = new object();
+
         public byte[] imgBuffer = new byte[READ_BUFFER_SIZE - 4]; // Size of 640x480 image only
         public string strMessage = string.Empty;
         public string res = String.Empty;
@@ -85,8 +88,30 @@ namespace SharpConnect {
         private void ProcessCommands() {
             switch (strMessage) {
                 case "IMG":
-                    imgBuffer = readBuffer;
+                    // Writes latest image to image buffer
+                    lock(thisLock) {
+                        Debug.Log("Image array length: " + imgBuffer.Length);
+                        for (int i = 4; i < readBuffer.Length; i++)
+                            imgBuffer[i - 4] = readBuffer[i];
+                    }
                     break;
+            }
+        }
+
+        // Reads image buffer and returns Texture2D
+        public Texture2D GetImageTexture () {
+            lock(thisLock) {
+                Texture2D tex = new Texture2D(640, 480, TextureFormat.RGB24, false);
+
+                // Color32[] image = new Color32[imgBuffer.Length / 3];
+                // for (int i = 0; i < image.Length; i++)
+                //     image[i] = new Color32(imgBuffer[i*3], imgBuffer[i*3+1], imgBuffer[i*3+2], 255);
+                // tex.SetPixels32(image);
+                // tex.Apply(false);
+
+                tex.LoadRawTextureData(imgBuffer);
+                tex.Apply(false);
+                return tex;
             }
         }
 

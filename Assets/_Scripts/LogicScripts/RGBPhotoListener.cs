@@ -16,13 +16,8 @@ public class RGBPhotoListener : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		elapsedTime += Time.deltaTime;
-		if (elapsedTime > receiveFrequency) {
-			Texture2D tex = new Texture2D(640, 480, TextureFormat.RGB24, false);
-			tex.LoadRawTextureData(clientObject.serverConnection.messageBuffer);
-			tex.Apply();
-			display.GetComponent<Renderer>().material.mainTexture = tex;
-			Debug.Log(clientObject.serverConnection.messageBuffer);
-
+		if (clientObject.serverConnection.isConnected && elapsedTime > receiveFrequency) {
+			display.GetComponent<Renderer>().material.mainTexture = clientObject.serverConnection.GetImageTexture();
 			elapsedTime = 0.0f;
 		}
 	}

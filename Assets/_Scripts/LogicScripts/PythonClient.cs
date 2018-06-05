@@ -12,7 +12,7 @@ public class PythonClient: MonoBehaviour {
     }
     
     void Update() {
-        if (OVRInput.GetDown(OVRInput.RawButton.Y, OVRInput.Controller.LTouch)) {
+        if (OVRInput.GetDown(OVRInput.RawButton.Y, OVRInput.Controller.LTouch) || Input.GetKeyDown("c")) {
             if (serverConnection.isConnected) {
                 try { serverConnection.fnDisconnect(); } catch { }
             } else {
