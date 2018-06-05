@@ -93,8 +93,8 @@ public class HandPositionListener : MonoBehaviour {
                     }
                     break;
                 default: // Done
-                    textUI.text = "Calibrated! While controlling the robot, please keep your torso still. I use your arm length and shoulder position to "
-                        + "scale down your movements to the robot's.";
+                    textUI.text = "Calibrated! Arm coordinates are sent to NAO every 5 seconds. Please stand still while " +
+                        "controlling NAO.";
                     currState = States.Playtime;
                     break;
             }

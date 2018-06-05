@@ -12,15 +12,15 @@ using System.Collections;
 
 namespace SharpConnect {
     public class Connector {
-        const int READ_BUFFER_SIZE = 921601; // Size of a 640x480 RGB image + 1
+        const int READ_BUFFER_SIZE = 921604; // Size of "IMG|" + a 640x480 RGB image
         const int PORT_NUM = 10000;
 
         private TcpClient client;
         private byte[] readBuffer = new byte[READ_BUFFER_SIZE];
+        public byte[] imgBuffer = new byte[READ_BUFFER_SIZE - 4]; // Size of 640x480 image only
         public string strMessage = string.Empty;
         public string res = String.Empty;
         public bool isConnected = false;
-        public byte[] messageBuffer = new byte[READ_BUFFER_SIZE];
 
         public Connector() { }
 
@@ -50,10 +50,6 @@ namespace SharpConnect {
             isConnected = false;
         }
 
-        //public void fnListUsers() {
-        //    SendData("REQUESTUSERS");
-        //}
-
         // Function that actually constantly receives stream from server in background
         private void DoRead(IAsyncResult ar) {
             int BytesRead;
@@ -65,10 +61,19 @@ namespace SharpConnect {
                     res = "Disconnected";
                     return;
                 }
-                messageBuffer = readBuffer;
-                // Convert the byte array the message was saved into
-                strMessage = Encoding.ASCII.GetString(readBuffer, 0, BytesRead);
-                ProcessCommands(strMessage);
+
+                // Get type of message
+                int messageLength = 0; // default value
+                for (int i = 0; i < BytesRead; i++) {
+                    if (readBuffer[i] == '|') {
+                        messageLength = i;  // get string before '|'
+                        break;
+                    }
+                }
+
+                // Process message
+                strMessage = Encoding.ASCII.GetString(readBuffer, 0, messageLength);
+                ProcessCommands();
 
                 // Start a new asynchronous read into readBuffer.
                 client.GetStream().BeginRead(readBuffer, 0, READ_BUFFER_SIZE, new AsyncCallback(DoRead), null);
@@ -77,7 +82,12 @@ namespace SharpConnect {
             }
         }
         
-        private void ProcessCommands(string strMessage) {
+        private void ProcessCommands() {
+            switch (strMessage) {
+                case "IMG":
+                    imgBuffer = readBuffer;
+                    break;
+            }
         }
 
         //// Process the command received from the server, and take appropriate action.
