@@ -13,15 +13,19 @@ using UnityEngine;
 
 namespace SharpConnect {
     public class Connector {
-        const int READ_BUFFER_SIZE = 921604; // Size of "IMG|" + a 640x480 RGB image
-        const int PORT_NUM = 10000;
+        private const int READ_BUFFER_SIZE = 921604; // Size of "IMG|" + a 640x480 RGB image
+        private const int IMG_SIZE = READ_BUFFER_SIZE - 4;
+        private const int PORT_NUM = 10000;
+        private static readonly string[] ACCEPTED_COMMANDS = new string[] {"IMG"};
+        private const int MAX_COMMAND_LENGTH = 3; // Update this for longer commands
 
         private TcpClient client;
         private byte[] readBuffer = new byte[READ_BUFFER_SIZE];
-        private object thisLock = new object();
+        private byte[] imgBuffer = new byte[IMG_SIZE]; // Size of 640x480 image only
+        private int imgByteOffset = 0;
+        private enum ReceivingState {IMG, NONE};
+        private ReceivingState state = ReceivingState.NONE;
 
-        public byte[] imgBuffer = new byte[READ_BUFFER_SIZE - 4]; // Size of 640x480 image only
-        public string strMessage = string.Empty;
         public string res = String.Empty;
         public bool isConnected = false;
 
@@ -65,18 +69,20 @@ namespace SharpConnect {
                     return;
                 }
 
-                // Get type of message
-                int messageLength = 0; // default value
-                for (int i = 0; i < BytesRead; i++) {
-                    if (readBuffer[i] == '|') {
-                        messageLength = i;  // get string before '|'
-                        break;
-                    }
+                Debug.Log("Bytes Read: " + BytesRead);
+
+                // Get type of command (must be from accepted commands)
+                string messageType = string.Empty;
+                for (int i = 0; i < MAX_COMMAND_LENGTH; i++) {
+                    messageType += Convert.ToChar(readBuffer[i]);
                 }
 
-                // Process message
-                strMessage = Encoding.ASCII.GetString(readBuffer, 0, messageLength);
-                ProcessCommands();
+                // Validate that command is acceptable type
+                if (!ValidateCommand(messageType))
+                    messageType = string.Empty;
+
+                // Process message (if empty, assume packet continues from previous message type)
+                ProcessCommands(messageType, BytesRead);
 
                 // Start a new asynchronous read into readBuffer.
                 client.GetStream().BeginRead(readBuffer, 0, READ_BUFFER_SIZE, new AsyncCallback(DoRead), null);
@@ -84,68 +90,51 @@ namespace SharpConnect {
                 res = "Disconnected";
             }
         }
+
+        private bool ValidateCommand(string messageType) {
+            foreach (string s in ACCEPTED_COMMANDS)
+                if (s == messageType)
+                    return true;
+            return false;
+        }
         
-        private void ProcessCommands() {
-            switch (strMessage) {
+        private void ProcessCommands(string messageType, int BytesRead) {
+            switch (messageType) {
                 case "IMG":
-                    // Writes latest image to image buffer
-                    lock(thisLock) {
-                        Debug.Log("Image array length: " + imgBuffer.Length);
-                        for (int i = 4; i < readBuffer.Length; i++)
-                            imgBuffer[i - 4] = readBuffer[i];
+                    Debug.Assert(state == ReceivingState.NONE, "Connector.cs: state should be NONE, was " + state.ToString());
+                    state = ReceivingState.IMG;
+                    break;
+                case "": // string.Empty
+                    if (state == ReceivingState.IMG) {
+                        for (int i = 0; i < BytesRead; i++) {
+                            imgBuffer[imgByteOffset + i] = readBuffer[i];
+                        }
+                        imgByteOffset += BytesRead;
+
+                        if (imgByteOffset >= IMG_SIZE) {
+                            imgByteOffset = 0;
+                            state = ReceivingState.NONE;
+                        }
                     }
+                    break;
+                default:
+                    Debug.Assert(false, "Connector.cs: messageType (" + messageType + ") was not valid");
                     break;
             }
         }
 
         // Reads image buffer and returns Texture2D
         public Texture2D GetImageTexture () {
-            lock(thisLock) {
+            if (state != ReceivingState.IMG) {
                 Texture2D tex = new Texture2D(640, 480, TextureFormat.RGB24, false);
-
-                // Color32[] image = new Color32[imgBuffer.Length / 3];
-                // for (int i = 0; i < image.Length; i++)
-                //     image[i] = new Color32(imgBuffer[i*3], imgBuffer[i*3+1], imgBuffer[i*3+2], 255);
-                // tex.SetPixels32(image);
-                // tex.Apply(false);
-
                 tex.LoadRawTextureData(imgBuffer);
                 tex.Apply(false);
+
                 return tex;
+            } else {
+                return null;
             }
         }
-
-        //// Process the command received from the server, and take appropriate action.
-        //private void ProcessCommands(string strMessage) {
-        //    string[] dataArray;
-
-        //    // Message parts are divided by "|"  Break the string into an array accordingly.
-        //    dataArray = strMessage.Split((char)124);
-        //    // dataArray(0) is the command.
-        //    switch (dataArray[0]) {
-        //        case "JOIN":
-        //            // Server acknowledged login.
-        //            res = "You have joined the chat";
-        //            break;
-        //        case "CHAT":
-        //            // Received chat message, display it.
-        //            res = dataArray[1].ToString();
-        //            break;
-        //        case "REFUSE":
-        //            // Server refused login with this user name, try to log in with another.
-        //            AttemptLogin(pUserName);
-        //            res = "Attempted Re-Login";
-        //            break;
-        //        case "LISTUSERS":
-        //            // Server sent a list of users.
-        //            ListUsers(dataArray);
-        //            break;
-        //        case "BROAD":
-        //            // Server sent a broadcast message
-        //            res = "ServerMessage: " + dataArray[1].ToString();
-        //            break;
-        //    }
-        //}
 
         // Use a StreamWriter to send a message to server.
         private void SendData(string data) {

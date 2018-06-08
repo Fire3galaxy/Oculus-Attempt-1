@@ -20,7 +20,7 @@ public class NAOListener : MonoBehaviour {
 		elapsedTime += Time.deltaTime;
 		if (elapsedTime >= waitTime) {
 			elapsedTime = 0.0f;
-			ProcessMessage(clientObject.serverConnection.strMessage);
+			// ProcessMessage(clientObject.serverConnection.strMessage);
 		}
 	}
 

@@ -17,8 +17,11 @@ public class RGBPhotoListener : MonoBehaviour {
 	void Update () {
 		elapsedTime += Time.deltaTime;
 		if (clientObject.serverConnection.isConnected && elapsedTime > receiveFrequency) {
-			display.GetComponent<Renderer>().material.mainTexture = clientObject.serverConnection.GetImageTexture();
-			elapsedTime = 0.0f;
+			Texture2D nextImg = clientObject.serverConnection.GetImageTexture();
+			if (nextImg != null) {
+				display.GetComponent<Renderer>().material.mainTexture = nextImg;
+				elapsedTime = 0.0f;	// Doesn't reset until new image is received
+			}
 		}
 	}
 }
