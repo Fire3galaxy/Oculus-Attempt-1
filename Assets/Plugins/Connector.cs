@@ -101,8 +101,21 @@ namespace SharpConnect {
         private void ProcessCommands(string messageType, int BytesRead) {
             switch (messageType) {
                 case "IMG":
-                    Debug.Assert(state == ReceivingState.NONE, "Connector.cs: state should be NONE, was " + state.ToString());
+                    Debug.Assert(state == ReceivingState.NONE, "Connector.cs: state should be NONE, was " + state.ToString() + ", bytes read: " + BytesRead);
                     state = ReceivingState.IMG;
+
+                    // If packet came with "IMG|" + data, handle below
+                    if (BytesRead > 4) {
+                        for (int i = 4; i < BytesRead; i++) {
+                            imgBuffer[imgByteOffset + i - 4] = readBuffer[i];
+                        }
+                        imgByteOffset += (BytesRead - 4);
+
+                        if (imgByteOffset >= IMG_SIZE) {
+                            imgByteOffset = 0;
+                            state = ReceivingState.NONE;
+                        }
+                    }
                     break;
                 case "": // string.Empty
                     if (state == ReceivingState.IMG) {

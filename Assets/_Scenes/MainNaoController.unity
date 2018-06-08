@@ -1557,7 +1557,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   display: {fileID: 341771867}
-  receiveFrequency: 0.25
+  receiveFrequency: 0.01
 --- !u!1 &1691537883
 GameObject:
   m_ObjectHideFlags: 0
