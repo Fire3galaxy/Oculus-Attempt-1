@@ -49,17 +49,12 @@ namespace SharpConnect {
         }
 
         public void fnPacketTest(string sInfo) {
-            try {
-                SendData(sInfo);
-            } catch (SocketException se) {
-                Debug.LogError(se);
-                fnDisconnect();
-            }
+            SendData(sInfo);
         }
 
         public void fnDisconnect() {
-            SendData("DISCONNECT");
             isConnected = false;
+            SendData("DISCONNECT");
         }
 
         // Function that actually constantly receives stream from server in background
