@@ -16,7 +16,6 @@ public class HandPositionListener : MonoBehaviour {
     private States currState = States.Setup;
     private SetupStates currSetupState = SetupStates.AskForArmsDown;
     private float elapsedTime = 0.0f;
-    public float SendFrequency = 1.0f;
     
     // Initial hand position, Shoulder pos, Arm length (Arm length should be the same for both, but will be recorded)
     private Vector3[] leftHandDimens = new Vector3[3];
@@ -43,7 +42,7 @@ public class HandPositionListener : MonoBehaviour {
         {
             textTitle.text = "Robot Control Phase";
             elapsedTime += Time.deltaTime;
-            if (elapsedTime >= SendFrequency)
+            if (elapsedTime >= clientObject.SendFrequency)
             {
                 string LArmMessage = ((leftHand.transform.position - leftHandDimens[0]) / leftHandDimens[2].y).ToString("G4");
                 string RArmMessage = ((rightHand.transform.position - rightHandDimens[0]) / rightHandDimens[2].y).ToString("G4");
