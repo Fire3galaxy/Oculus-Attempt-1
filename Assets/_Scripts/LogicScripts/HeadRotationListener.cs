@@ -15,18 +15,18 @@ public class HeadRotationListener : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float yaw = headObject.transform.eulerAngles.y;
-		float pitch = headObject.transform.eulerAngles.x;
-		if (yaw > 180.0f) yaw -= 360.0f;
-		if (pitch > 180.0f) pitch -= 360.0f;
+		elapsedTime += Time.deltaTime;
+		if (clientObject.serverConnection.isConnected && elapsedTime >= clientObject.SendFrequency) {
+			float yaw = headObject.transform.eulerAngles.y;
+			float pitch = headObject.transform.eulerAngles.x;
+			if (yaw > 180.0f) yaw -= 360.0f;
+			if (pitch > 180.0f) pitch -= 360.0f;
+			Debug.Log(Mathf.Deg2Rad * yaw + ", " + Mathf.Deg2Rad * pitch);
 
-		Debug.Log("Yaw: " + yaw + ", Pitch: " + pitch);
+			clientObject.serverConnection.fnPacketTest("MOVE|HeadPitch|" + (Mathf.Deg2Rad * pitch));
+			clientObject.serverConnection.fnPacketTest("MOVE|HeadYaw|" + (Mathf.Deg2Rad * yaw));
 
-		// elapsedTime += Time.deltaTime;
-		// if (clientObject.serverConnection.isConnected) {
-		// 	if (elapsedTime >= clientObject.SendFrequency) {
-				
-		// 	}
-		// }
+			elapsedTime = 0.0f;
+		}
 	}
 }

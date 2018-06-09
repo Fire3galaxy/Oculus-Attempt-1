@@ -49,7 +49,12 @@ namespace SharpConnect {
         }
 
         public void fnPacketTest(string sInfo) {
-            SendData(sInfo);
+            try {
+                SendData(sInfo);
+            } catch (SocketException se) {
+                Debug.LogError(se);
+                fnDisconnect();
+            }
         }
 
         public void fnDisconnect() {
@@ -68,8 +73,6 @@ namespace SharpConnect {
                     res = "Disconnected";
                     return;
                 }
-
-                Debug.Log("Bytes Read: " + BytesRead);
 
                 // Get type of command (must be from accepted commands)
                 string messageType = string.Empty;

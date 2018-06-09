@@ -21,9 +21,6 @@ public class HandPositionListener : MonoBehaviour {
     private Vector3[] leftHandDimens = new Vector3[3];
     private Vector3[] rightHandDimens = new Vector3[3];
 
-    private const string LARM = "LArm";
-    private const string RARM = "RArm";
-
     // Use this for initialization
     void Start () {
         clientObject = GameObject.Find("/LogicScripts").GetComponent<PythonClient>();
@@ -49,8 +46,8 @@ public class HandPositionListener : MonoBehaviour {
 
                 // Send arm positions to server
                 if (clientObject.serverConnection.isConnected) {
-                    clientObject.serverConnection.fnPacketTest("MOVE|" + LARM + "|" + LArmMessage); 
-                    clientObject.serverConnection.fnPacketTest("MOVE|" + RARM + "|" + RArmMessage); 
+                    clientObject.serverConnection.fnPacketTest("MOVE|LArm|" + LArmMessage); 
+                    clientObject.serverConnection.fnPacketTest("MOVE|RArm|" + RArmMessage); 
                 }
 
                 // Reset timer
